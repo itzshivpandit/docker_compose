@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    networks:
+      - dev-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  sonarqube:
+    image: sonarqube:latest
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    networks:
+      - dev-network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
+  maven:
+    image: maven:3.8.1-jdk-11
+    container_name: maven
+    volumes:
+      - ./my-maven-project:/usr/src/mymaven
+      - maven_repository:/root/.m2
+    working_dir: /usr/src/mymaven
+    networks:
+      - dev-network
+    command: mvn clean install
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+networks:
+  dev-network:
+
+volumes:
+  jenkins_home:
+  maven_repository:
